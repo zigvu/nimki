@@ -2,18 +2,24 @@
 
 require "bundler/setup"
 require "messaging"
-require_relative "capture_handler"
+
+curPath = File::expand_path('..', __FILE__)
+curPathFiles = Dir["#{curPath}/**/*.rb"]
+curPathFiles.each { |file|
+  require_relative file
+}
+
+Messaging.logger.info("Start CaptureServer")
+
+@captureState = CaptureState.new
+@bufferManager = BufferManager.new(@captureState)
+
+@captureHandler = CaptureHandler.new(@bufferManager)
+@captureServer = Messaging.cache.video_capture.nimki.server(@captureHandler)
+@captureClient = Messaging.cache.video_capture.nimki.client
 
 
-# currently assume default URL
-connection = Messaging.connection
-captureHandler = CaptureHandler.new
-rpcServer = Connections::RpcServer.new(
-  connection,
-  'development.video.capture',
-  'development.video.capture.nimki.a',
-  captureHandler
-)
-rpcServer.start
+# sleep 1000
 
-sleep 1000
+require "irb"
+IRB.start

@@ -1,13 +1,21 @@
-class CaptureHandler < Handlers::RpcHandler
-  def call(header, payload)
-    # see if generic handler can handle
-    handled, returnHeader, returnMessage = handleGeneric(header)
-    if handled
-      return returnHeader, returnMessage
-    end
+class CaptureHandler
+  def initialize(bufferManager)
+    @bufferManager = bufferManager
+  end
 
-    # else, need to specify cases
+  def call(header, message)
+    Messaging.logger.debug("CaptureHandler: Request header: #{header}")
 
-    return {}, "Hello"
+    pingHandler = Handlers::PingHandler.new(header, message, @bufferManager)
+    return pingHandler.handle if pingHandler.canHandle?
+
+    stateQueryHandler = Handlers::StateQueryHandler.new(header, message, @bufferManager)
+    return stateQueryHandler.handle if stateQueryHandler.canHandle?
+
+
+    Messaging.logger.debug("CaptureHandler: Served header : #{returnHeader}")
+    Messaging.logger.debug("CaptureHandler: Served message: #{returnMessage}")
+
+    return returnHeader, returnMessage
   end
 end
