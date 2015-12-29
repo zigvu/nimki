@@ -1,14 +1,14 @@
 module Handlers
   class StateQueryHandler
-    def initialize(header, message, bufferManager)
+    def initialize(header, message, captureState)
       @header = header
       @message = message
-      @bufferManager = bufferManager
+      @captureState = captureState
     end
 
     def handle
       returnHeader = Messaging::Messages::Header.statusSuccess
-      @message.state = @bufferManager.getState
+      @message.state = @captureState.getState()
       returnMessage = @message
       return returnHeader, returnMessage
     end
