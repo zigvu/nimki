@@ -13,49 +13,37 @@ module ShellCommands
       @vncServer = ShellCommands::VncServer.new(displayId)
       @chrome = ShellCommands::Chrome.new(displayId)
       @ffmpeg = ShellCommands::Ffmpeg.new(displayId, width, height)
-
-      @setupSleepTime = 5 # seconds
     end
 
     def baseStart
       @xvfb.start
-      sleep @setupSleepTime
       @fluxbox.start
-      sleep @setupSleepTime
     end
     def baseStop
       # exit in correct order
       @fluxbox.stop
-      sleep @setupSleepTime
       @xvfb.stop
-      sleep @setupSleepTime
     end
 
     def vncStart
       @vncServer.start
-      sleep @setupSleepTime
     end
     def vncStop
       @vncServer.stop
-      sleep @setupSleepTime
     end
 
     def chromeStart(url)
       @chrome.start(url)
-      sleep @setupSleepTime
     end
     def chromeStop
       @chrome.stop
-      sleep @setupSleepTime
     end
 
     def ffmpegStart(saveFolder)
       @ffmpeg.start(saveFolder)
-      sleep @setupSleepTime
     end
     def ffmpegStop
       @ffmpeg.stop
-      sleep @setupSleepTime
     end
 
     def stop

@@ -11,23 +11,24 @@ curPathFiles.each { |file| require_relative file }
 # Start server
 Messaging.logger.info("Start CaptureServer")
 
-# # CaptureState is the global state storage
-# @captureState = States::CaptureState.new
-# # Handlers reply to requests from rasbari
-# @captureHandler = Handlers::CaptureHandler.new(@captureState)
-#
-# # CaptureServer receives messages from rasbari and replies based on handlers
-# @captureServer = Messaging.cache.video_capture.nimki.server(@captureHandler)
-# # CaptureClient sends requests to rasbari and receives messages for further processing
-# @captureClient = Messaging.cache.video_capture.nimki.client
-#
-#
-# sleep 1000
+# because Xvfb shell command requires sudo, ensure that sudo can be used
+`sudo ls -lrt`
 
+# Manage all shell commands
 @shellManager = ShellCommands::Manager.new
-@shellManager.baseStart
-@shellManager.vncStart
-@shellManager.chromeStart('http://www.yahoo.com')
+
+# CaptureState is the global state storage
+@captureState = States::CaptureState.new
+@captureState.shellManager = @shellManager
+
+# Handlers reply to requests from rasbari
+@captureHandler = Handlers::CaptureHandler.new(@captureState)
+
+# CaptureServer receives messages from rasbari and replies based on handlers
+@captureServer = Messaging.cache.video_capture.nimki.server(@captureHandler)
+
+# CaptureClient sends requests to rasbari and receives messages for further processing
+@captureClient = Messaging.cache.video_capture.nimki.client
 
 at_exit do
   @shellManager.stop

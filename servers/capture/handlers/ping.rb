@@ -1,9 +1,9 @@
 module Handlers
-  class PingHandler
-    def initialize(header, message, bufferManager)
+  class Ping
+    def initialize(header, message, captureState)
       @header = header
       @message = message
-      @bufferManager = bufferManager
+      @captureState = captureState
     end
 
     def handle

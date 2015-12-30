@@ -1,5 +1,5 @@
 module Handlers
-  class StateQueryHandler
+  class CaptureDetails
     def initialize(header, message, captureState)
       @header = header
       @message = message
@@ -7,14 +7,14 @@ module Handlers
     end
 
     def handle
-      returnHeader = Messaging::Messages::Header.statusSuccess
-      @message.state = @captureState.getState()
+      @captureState.captureDetails.fromMessage(@message)
+      returnHeader = Messaging::Messages::Header.dataSuccess
       returnMessage = @message
       return returnHeader, returnMessage
     end
 
     def canHandle?
-      Messaging::Messages::VideoCapture::StateQuery.new(nil).isSameType?(@message)
+      Messaging::Messages::VideoCapture::CaptureDetails.new(nil).isSameType?(@message)
     end
   end
 end

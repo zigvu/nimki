@@ -1,5 +1,5 @@
 module Handlers
-  class TransitionHandler
+  class Transition
     def initialize(header, message, captureState)
       @header = header
       @message = message
@@ -12,8 +12,15 @@ module Handlers
       # transition state
       requestedState = Messaging::VideoCapture::CaptureStates.new(@message.state)
       case requestedState
+      when Messaging::VideoCapture::CaptureStates.unknown
+        # cannot transition to unknown state explicitely
+        success = false
       when Messaging::VideoCapture::CaptureStates.ready
-        success = States::TransitionReady.new(@captureState).transition
+        success = States::TransitionToReady.new(@captureState).transition
+      when Messaging::VideoCapture::CaptureStates.capturing
+        success = States::TransitionToCapturing.new(@captureState).transition
+      when Messaging::VideoCapture::CaptureStates.stopped
+        success = States::TransitionToStopped.new(@captureState).transition
       end
 
       if success

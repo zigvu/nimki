@@ -10,6 +10,8 @@ module ShellCommands
       @processOptions = {
         STDERR=>STDOUT
       }
+      @processWaitTimeAfterStart = 5 # seconds
+      @processWaitTimeAfterEnd = 2 # seconds
     end
 
     def isRunning?
@@ -19,6 +21,7 @@ module ShellCommands
     def start(command)
       @pid = Process.spawn(@envVars, command, @processOptions)
       Process.detach @pid
+      sleep @processWaitTimeAfterStart
     end
 
     def stop(pkillCommandName = nil)
@@ -29,6 +32,7 @@ module ShellCommands
         Messaging.logger.warn("Process (#{@pid}) already killed")
       end
       @pid = nil
+      sleep @processWaitTimeAfterEnd
     end
 
   end

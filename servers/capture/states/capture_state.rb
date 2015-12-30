@@ -2,6 +2,7 @@ require "thread"
 
 module States
   class CaptureState
+    attr_accessor :shellManager, :captureDetails
     attr_accessor :qLocalFiles, :qRasbariRequested, :qStorageRequested
 
     def initialize
@@ -10,9 +11,11 @@ module States
       @qRasbariRequested = Queue.new
       @qStorageRequested = Queue.new
 
+      @captureDetails = States::CaptureDetails.new
+
       # track state of variable - use mutex to make it thread safe
       @currentStateMutex = Mutex.new
-      setState(Messaging::VideoCapture::CaptureStates.stopped)
+      setState(Messaging::VideoCapture::CaptureStates.unknown)
     end
 
     # Get state

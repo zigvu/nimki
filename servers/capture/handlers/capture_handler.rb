@@ -8,15 +8,27 @@ module Handlers
       Messaging.logger.debug("CaptureHandler: Request header : #{header}")
       Messaging.logger.debug("CaptureHandler: Request message: #{message}")
 
-      pingHandler = Handlers::PingHandler.new(header, message, @captureState)
-      return pingHandler.handle if pingHandler.canHandle?
+      returnHeader = Messaging::Messages::Header.statusFailure
+      returnMessage = Messaging::Messages::MessageFactory.getNoneMessage
 
-      stateQueryHandler = Handlers::StateQueryHandler.new(header, message, @captureState)
-      return stateQueryHandler.handle if stateQueryHandler.canHandle?
+      begin
+        pingHandler = Handlers::Ping.new(header, message, @captureState)
+        returnHeader, returnMessage = pingHandler.handle if pingHandler.canHandle?
 
-      transitionHandler = Handlers::TransitionHandler.new(header, message, @captureState)
-      return transitionHandler.handle if transitionHandler.canHandle?
+        stateQueryHandler = Handlers::StateQuery.new(header, message, @captureState)
+        returnHeader, returnMessage = stateQueryHandler.handle if stateQueryHandler.canHandle?
 
+        transitionHandler = Handlers::Transition.new(header, message, @captureState)
+        returnHeader, returnMessage = transitionHandler.handle if transitionHandler.canHandle?
+
+        captureDetailsHandler = Handlers::CaptureDetails.new(header, message, @captureState)
+        returnHeader, returnMessage = captureDetailsHandler.handle if captureDetailsHandler.canHandle?
+
+        vncServerStartHandler = Handlers::VncServerStart.new(header, message, @captureState)
+        returnHeader, returnMessage = vncServerStartHandler.handle if vncServerStartHandler.canHandle?
+      rescue => e
+        Messaging.logger.error("CaptureHandler: #{e}")
+      end
 
       Messaging.logger.debug("CaptureHandler: Served header : #{returnHeader}")
       Messaging.logger.debug("CaptureHandler: Served message: #{returnMessage}")
