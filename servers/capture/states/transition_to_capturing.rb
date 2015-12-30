@@ -26,7 +26,7 @@ module States
     private
       def transitionFromReady
         # start ffmpeg
-        @captureState.shellManager.ffmpegStart(@captureState.captureDetails.localFileFolder)
+        @captureState.shellManager.ffmpegStart(@captureState.captureDetails.ffmpegOutFolder)
 
         @captureState.setState(Messaging::VideoCapture::CaptureStates.capturing)
 

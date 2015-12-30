@@ -36,15 +36,9 @@ module States
 
         # TODO: delete the last clip ffmpeg was creating
 
-        # TODO: until the queues are empty, do not return
-        if !(@captureState.qLocalFiles.empty? &&
-          @captureState.qLocalFiles.empty? &&
-          @captureState.qLocalFiles.empty?)
-          Messaging.logger.warn("The queues are not empty")
-        end
-
-        @captureState.setState(Messaging::VideoCapture::CaptureStates.stopped)
+        @captureState.threadManager.reset
         @captureState.captureDetails.reset
+        @captureState.setState(Messaging::VideoCapture::CaptureStates.stopped)
 
         true
       end

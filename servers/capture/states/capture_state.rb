@@ -2,15 +2,10 @@ require "thread"
 
 module States
   class CaptureState
-    attr_accessor :shellManager, :captureDetails
-    attr_accessor :qLocalFiles, :qRasbariRequested, :qStorageRequested
+    attr_accessor :shellManager, :threadManager, :captureDetails
 
     def initialize
-      # queues to manage flow of clips in a thread safe manner
-      @qLocalFiles = Queue.new
-      @qRasbariRequested = Queue.new
-      @qStorageRequested = Queue.new
-
+      @threadManager = States::ThreadManager.new
       @captureDetails = States::CaptureDetails.new
 
       # track state of variable - use mutex to make it thread safe

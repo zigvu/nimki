@@ -3,7 +3,7 @@ require 'fileutils'
 module States
   class CaptureDetails
     attr_accessor :url, :width, :height, :workflowId
-    attr_accessor :localFileFolder, :rasbariRequestedFileFolder
+    attr_accessor :ffmpegOutFolder, :rasbariRequestedFolder
 
     def initialize(baseFolder = nil)
       @baseFolder = baseFolder || '/tmp/capture'
@@ -16,12 +16,12 @@ module States
       @workflowId = message.workflowId
 
 
-      @localFileFolder = "#{@baseFolder}/#{@workflowId}/local"
-      FileUtils.rm_rf(@localFileFolder)
-      FileUtils.mkdir_p(@localFileFolder)
-      @rasbariRequestedFileFolder = "#{@baseFolder}/#{@workflowId}/rasbari"
-      FileUtils.mkdir_p(@rasbariRequestedFileFolder)
-      FileUtils.rm_rf(@rasbariRequestedFileFolder)
+      @ffmpegOutFolder = "#{@baseFolder}/#{@workflowId}/ffmpeg"
+      FileUtils.rm_rf(@ffmpegOutFolder)
+      FileUtils.mkdir_p(@ffmpegOutFolder)
+      @rasbariRequestedFolder = "#{@baseFolder}/#{@workflowId}/rasbari"
+      FileUtils.mkdir_p(@rasbariRequestedFolder)
+      FileUtils.rm_rf(@rasbariRequestedFolder)
     end
 
     def reset
