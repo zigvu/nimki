@@ -4,9 +4,10 @@ module States
   class CaptureState
     attr_accessor :shellManager, :threadManager, :captureDetails
 
-    def initialize
-      @threadManager = States::ThreadManager.new
-      @captureDetails = States::CaptureDetails.new
+    def initialize(shellManager, threadManager, captureDetails)
+      @shellManager = shellManager
+      @threadManager = threadManager
+      @captureDetails = captureDetails
 
       # track state of variable - use mutex to make it thread safe
       @currentStateMutex = Mutex.new

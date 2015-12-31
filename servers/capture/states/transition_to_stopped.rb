@@ -34,8 +34,6 @@ module States
         # stop creating new clips
         @captureState.shellManager.stop
 
-        # TODO: delete the last clip ffmpeg was creating
-
         @captureState.threadManager.reset
         @captureState.captureDetails.reset
         @captureState.setState(Messaging::VideoCapture::CaptureStates.stopped)

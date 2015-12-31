@@ -5,16 +5,18 @@ module States
   class ThreadManager
     attr_accessor :queueRasbariFiles
 
-    def initialize
+    def initialize(captureClient, storageClient)
       @queueRasbariFiles = Queue.new
+      @captureClient = captureClient
+      @storageClient = storageClient
     end
 
-    def start(ffmpegOutFolder, rasbariRequestedFolder, captureClient, storageClient)
+    def start(ffmpegOutFolder, rasbariRequestedFolder)
       reset
       @poisonThreadFfmpegFiles = false
 
       threadFfmpegFiles(ffmpegOutFolder, rasbariRequestedFolder)
-      threadRasbariQuery(captureClient, storageClient)
+      threadRasbariQuery(@captureClient, @storageClient)
     end
 
     def reset
