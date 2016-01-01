@@ -7,14 +7,14 @@ module States
     def transition
       success = false
       case @captureState.getState
-      when Messaging::VideoCapture::CaptureStates.unknown
+      when Messaging::States::VideoCapture::CaptureStates.unknown
         # cannot go directly from unknown to stopped
         success = false
-      when Messaging::VideoCapture::CaptureStates.ready
+      when Messaging::States::VideoCapture::CaptureStates.ready
         success = transitionFromReady
-      when Messaging::VideoCapture::CaptureStates.capturing
+      when Messaging::States::VideoCapture::CaptureStates.capturing
         success = transitionFromCapturing
-      when Messaging::VideoCapture::CaptureStates.stopped
+      when Messaging::States::VideoCapture::CaptureStates.stopped
         # already in stopped state
         success = true
       end
@@ -25,7 +25,7 @@ module States
     private
       def transitionFromReady
         @captureState.shellManager.stop
-        @captureState.setState(Messaging::VideoCapture::CaptureStates.stopped)
+        @captureState.setState(Messaging::States::VideoCapture::CaptureStates.stopped)
 
         true
       end
@@ -36,7 +36,7 @@ module States
 
         @captureState.threadManager.reset
         @captureState.captureDetails.reset
-        @captureState.setState(Messaging::VideoCapture::CaptureStates.stopped)
+        @captureState.setState(Messaging::States::VideoCapture::CaptureStates.stopped)
 
         true
       end

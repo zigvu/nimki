@@ -7,15 +7,15 @@ module States
     def transition
       success = false
       case @captureState.getState
-      when Messaging::VideoCapture::CaptureStates.unknown
+      when Messaging::States::VideoCapture::CaptureStates.unknown
         success = transitionFromUnknown
-      when Messaging::VideoCapture::CaptureStates.ready
+      when Messaging::States::VideoCapture::CaptureStates.ready
         # already in ready state
         success = true
-      when Messaging::VideoCapture::CaptureStates.capturing
+      when Messaging::States::VideoCapture::CaptureStates.capturing
         # cannot go directly from capturing to ready - need to stop first
         success = false
-      when Messaging::VideoCapture::CaptureStates.stopped
+      when Messaging::States::VideoCapture::CaptureStates.stopped
         success = transitionFromStopped
       end
 
@@ -24,7 +24,7 @@ module States
 
     private
       def transitionFromUnknown
-        @captureState.setState(Messaging::VideoCapture::CaptureStates.stopped)
+        @captureState.setState(Messaging::States::VideoCapture::CaptureStates.stopped)
         transitionFromStopped
       end
 
@@ -36,7 +36,7 @@ module States
         # load chrome
         @captureState.shellManager.chromeStart(@captureState.captureDetails.url)
 
-        @captureState.setState(Messaging::VideoCapture::CaptureStates.ready)
+        @captureState.setState(Messaging::States::VideoCapture::CaptureStates.ready)
 
         true
       end

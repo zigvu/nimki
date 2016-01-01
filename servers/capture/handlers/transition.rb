@@ -10,16 +10,16 @@ module Handlers
       success = false
 
       # transition state
-      requestedState = Messaging::VideoCapture::CaptureStates.new(@message.state)
+      requestedState = Messaging::States::VideoCapture::CaptureStates.new(@message.state)
       case requestedState
-      when Messaging::VideoCapture::CaptureStates.unknown
+      when Messaging::States::VideoCapture::CaptureStates.unknown
         # cannot transition to unknown state explicitely
         success = false
-      when Messaging::VideoCapture::CaptureStates.ready
+      when Messaging::States::VideoCapture::CaptureStates.ready
         success = States::TransitionToReady.new(@captureState).transition
-      when Messaging::VideoCapture::CaptureStates.capturing
+      when Messaging::States::VideoCapture::CaptureStates.capturing
         success = States::TransitionToCapturing.new(@captureState).transition
-      when Messaging::VideoCapture::CaptureStates.stopped
+      when Messaging::States::VideoCapture::CaptureStates.stopped
         success = States::TransitionToStopped.new(@captureState).transition
       end
 

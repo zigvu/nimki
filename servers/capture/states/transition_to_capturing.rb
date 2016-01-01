@@ -7,15 +7,15 @@ module States
     def transition
       success = false
       case @captureState.getState
-      when Messaging::VideoCapture::CaptureStates.unknown
+      when Messaging::States::VideoCapture::CaptureStates.unknown
         # cannot go directly from unknown to capturing
         success = false
-      when Messaging::VideoCapture::CaptureStates.ready
+      when Messaging::States::VideoCapture::CaptureStates.ready
         success = transitionFromReady
-      when Messaging::VideoCapture::CaptureStates.capturing
+      when Messaging::States::VideoCapture::CaptureStates.capturing
         # already in capturing state
         success = true
-      when Messaging::VideoCapture::CaptureStates.stopped
+      when Messaging::States::VideoCapture::CaptureStates.stopped
         # cannot go directly from stopped to capturing - need to ready first
         success = false
       end
@@ -28,7 +28,7 @@ module States
         # start ffmpeg
         @captureState.shellManager.ffmpegStart(@captureState.captureDetails.ffmpegOutFolder)
 
-        @captureState.setState(Messaging::VideoCapture::CaptureStates.capturing)
+        @captureState.setState(Messaging::States::VideoCapture::CaptureStates.capturing)
 
         true
       end

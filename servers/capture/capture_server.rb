@@ -15,7 +15,7 @@ Messaging.logger.info("Start CaptureServer")
 `sudo ls -lrt`
 
 # CaptureClient sends requests to rasbari and receives messages for further processing
-@captureClient = Messaging.cache.video_capture.nimki.client
+@captureClient = Connections::NimkiClient.new
 @storageClient = nil
 
 @shellManager = ShellCommands::Manager.new
@@ -29,7 +29,7 @@ Messaging.logger.info("Start CaptureServer")
 @captureHandler = Handlers::CaptureHandler.new(@captureState)
 
 # CaptureServer receives messages from rasbari and replies based on handlers
-@captureServer = Messaging.cache.video_capture.nimki.server(@captureHandler)
+@captureServer = Connections::NimkiServer.new(@captureHandler)
 
 at_exit do
   @shellManager.stop

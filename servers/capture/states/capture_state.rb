@@ -11,7 +11,7 @@ module States
 
       # track state of variable - use mutex to make it thread safe
       @currentStateMutex = Mutex.new
-      setState(Messaging::VideoCapture::CaptureStates.unknown)
+      setState(Messaging::States::VideoCapture::CaptureStates.unknown)
     end
 
     # Get state
