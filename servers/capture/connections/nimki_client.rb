@@ -14,10 +14,10 @@ module Connections
       Messaging.logger.info("Start NimkiClient for hostname: #{hostname}")
     end
 
-    def getClipDetails(workflowId, ffmpegName)
+    def getClipDetails(captureId, ffmpegName)
       header = Messaging::Messages::Header.dataRequest
       message = Messaging::Messages::VideoCapture::ClipDetails.new(nil)
-      message.workflowId = workflowId
+      message.captureId = captureId
       message.ffmpegName = ffmpegName
       _, response = call(header, message)
       response

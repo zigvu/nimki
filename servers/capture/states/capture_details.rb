@@ -2,7 +2,8 @@ require 'fileutils'
 
 module States
   class CaptureDetails
-    attr_accessor :url, :width, :height, :workflowId
+    attr_accessor :captureId, :captureUrl, :width, :height
+    attr_accessor :playbackFrameRate, :storageHostname
     attr_accessor :ffmpegOutFolder, :rasbariRequestedFolder
 
     def initialize(baseFolder = nil)
@@ -10,25 +11,27 @@ module States
     end
 
     def fromMessage(message)
-      @url = message.url
+      @captureId = message.captureId
+      @captureUrl = message.captureUrl
       @width = message.width
       @height = message.height
-      @workflowId = message.workflowId
+      @playbackFrameRate = message.playbackFrameRate
+      @storageHostname = message.storageHostname
 
 
-      @ffmpegOutFolder = "#{@baseFolder}/#{@workflowId}/ffmpeg"
+      @ffmpegOutFolder = "#{@baseFolder}/#{@captureId}/ffmpeg"
       FileUtils.rm_rf(@ffmpegOutFolder)
       FileUtils.mkdir_p(@ffmpegOutFolder)
-      @rasbariRequestedFolder = "#{@baseFolder}/#{@workflowId}/rasbari"
-      FileUtils.mkdir_p(@rasbariRequestedFolder)
+      @rasbariRequestedFolder = "#{@baseFolder}/#{@captureId}/rasbari"
       FileUtils.rm_rf(@rasbariRequestedFolder)
+      FileUtils.mkdir_p(@rasbariRequestedFolder)
     end
 
     def reset
-      @workflowId = nil
+      @captureId = nil
     end
     def hasDetails?
-      @workflowId != nil && @workflowId != ""
+      @captureId != nil && @captureId != ""
     end
   end
 end

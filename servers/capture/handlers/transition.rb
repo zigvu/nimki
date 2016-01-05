@@ -16,11 +16,11 @@ module Handlers
         # cannot transition to unknown state explicitely
         success = false
       when Messaging::States::VideoCapture::CaptureStates.ready
-        success = States::TransitionToReady.new(@captureState).transition
+        success = Handlers::Transitions::ToReady.new(@captureState).transition
       when Messaging::States::VideoCapture::CaptureStates.capturing
-        success = States::TransitionToCapturing.new(@captureState).transition
+        success = Handlers::Transitions::ToCapturing.new(@captureState).transition
       when Messaging::States::VideoCapture::CaptureStates.stopped
-        success = States::TransitionToStopped.new(@captureState).transition
+        success = Handlers::Transitions::ToStopped.new(@captureState).transition
       end
 
       if success

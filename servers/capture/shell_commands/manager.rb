@@ -32,8 +32,8 @@ module ShellCommands
       @vncServer.stop
     end
 
-    def chromeStart(url)
-      @chrome.start(url)
+    def chromeStart(captureUrl)
+      @chrome.start(captureUrl)
     end
     def chromeStop
       @chrome.stop

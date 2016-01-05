@@ -8,11 +8,11 @@ module ShellCommands
       @processRunner = ShellCommands::ProcessRunner.new(displayId)
     end
 
-    def start(url)
+    def start(captureUrl)
       raise "Chrome process already exists" if @processRunner.isRunning?
       Messaging.logger.info("Chrome process starting")
 
-      command = "export DISPLAY=:99 && google-chrome-stable --app=#{url}"
+      command = "export DISPLAY=:99 && google-chrome-stable --app=#{captureUrl}"
       @processRunner.start(command)
     end
 

@@ -7,7 +7,12 @@ module Handlers
     end
 
     def handle
-      returnHeader = Messaging::Messages::Header.pingSuccess
+      # ensure that rasbari server is alive
+      if @captureState.captureClient.isRemoteAlive?
+        returnHeader = Messaging::Messages::Header.pingSuccess
+      else
+        returnHeader = Messaging::Messages::Header.pingFailure
+      end
       returnMessage = Messaging::Messages::MessageFactory.getNoneMessage
       return returnHeader, returnMessage
     end

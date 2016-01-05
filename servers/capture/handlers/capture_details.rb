@@ -8,6 +8,13 @@ module Handlers
 
     def handle
       @captureState.captureDetails.fromMessage(@message)
+      # TODO: connect with storage server and ping
+
+      # set thread manager variables
+      tm = @captureState.threadManager
+      tm.setClients(@captureState.captureClient, @captureState.storageClient)
+      tm.setCaptureDetails(@captureState.captureDetails)
+
       returnHeader = Messaging::Messages::Header.dataSuccess
       returnMessage = @message
       return returnHeader, returnMessage

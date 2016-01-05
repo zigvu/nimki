@@ -14,16 +14,8 @@ Messaging.logger.info("Start CaptureServer")
 # because Xvfb shell command requires sudo, ensure that sudo can be used
 `sudo ls -lrt`
 
-# CaptureClient sends requests to rasbari and receives messages for further processing
-@captureClient = Connections::NimkiClient.new
-@storageClient = nil
-
-@shellManager = ShellCommands::Manager.new
-@threadManager = States::ThreadManager.new(@captureClient, @storageClient)
-@captureDetails = States::CaptureDetails.new
-
 # CaptureState is the global state storage
-@captureState = States::CaptureState.new(@shellManager, @threadManager, @captureDetails)
+@captureState = States::CaptureState.new
 
 # Handlers reply to requests from rasbari
 @captureHandler = Handlers::CaptureHandler.new(@captureState)
@@ -32,7 +24,7 @@ Messaging.logger.info("Start CaptureServer")
 @captureServer = Connections::NimkiServer.new(@captureHandler)
 
 at_exit do
-  @shellManager.stop
+  @captureState.reset
 end
 
 
