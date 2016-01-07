@@ -1,0 +1,22 @@
+PATH
+  remote: /home/ubuntu/rasbari/engines/messaging
+  specs:
+    messaging (0.1.0)
+      bunny
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    amq-protocol (2.0.1)
+    bunny (2.2.2)
+      amq-protocol (>= 2.0.1)
+    net-sftp (2.1.2)
+      net-ssh (>= 2.6.5)
+    net-ssh (3.0.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  messaging!
+  net-sftp

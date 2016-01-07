@@ -1,0 +1,5 @@
+source 'https://rubygems.org'
+
+gem 'net-sftp'
+
+gem 'messaging', path: '/home/ubuntu/rasbari/engines/messaging'
