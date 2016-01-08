@@ -1,7 +1,7 @@
 require 'socket'
 
 module Connections
-  class NimkiServer < Messaging::Connections::GenericServer
+  class CaptureServer < Messaging::Connections::GenericServer
 
     def initialize(handler)
       hostname = Socket.gethostname
@@ -10,7 +10,7 @@ module Connections
       listenRoutingKey = "#{Messaging.config.video_capture.routing_keys.nimki.server}.#{hostname}"
 
       super(exchangeName, listenRoutingKey, handler)
-      Messaging.logger.info("Start NimkiServer for hostname: #{hostname}")
+      Messaging.logger.info("Start CaptureServer for hostname: #{hostname}")
     end
 
   end

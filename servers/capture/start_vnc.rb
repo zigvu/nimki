@@ -11,9 +11,9 @@ curPathFiles.each { |file| require_relative file }
 
 options = OpenStruct.new
 OptionParser.new do |opts|
-  opts.banner = "Usage: capture_client.rb [options]"
+  opts.banner = "Usage: start_vnc.rb [options]"
 
-  opts.on('-r', '--remote_ip IP', 'Remote IP or hostname') { |o| options.remote_ip = o }
+  opts.on('-r', '--remote_ip IP', 'Remote IP or hostname (local for test)') { |o| options.remote_ip = o }
 end.parse!
 raise "Missing argument: type '-h' for help." if !options.remote_ip
 @remoteIp = options.remote_ip
@@ -21,8 +21,8 @@ raise "Missing argument: type '-h' for help." if !options.remote_ip
 # Start client
 Messaging.logger.info("Start CaptureClient")
 
-# if testing in localhost, no need to ssh
-if @remoteIp != 'localhost'
+# if testing in local machine, no need to ssh
+if @remoteIp != 'local'
   # Start ssh connection
   sshConnectionCmd = "ssh -N -T -L 5900:localhost:5900 ubuntu@#{@remoteIp}"
   @sshConnectionPid = Process.spawn(sshConnectionCmd)

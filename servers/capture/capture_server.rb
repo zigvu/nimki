@@ -21,7 +21,7 @@ Messaging.logger.info("Start CaptureServer")
 @captureHandler = Handlers::CaptureHandler.new(@captureState)
 
 # CaptureServer receives messages from rasbari and replies based on handlers
-@captureServer = Connections::NimkiServer.new(@captureHandler)
+@captureServer = Connections::CaptureServer.new(@captureHandler)
 
 at_exit do
   @captureState.reset

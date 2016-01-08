@@ -1,7 +1,7 @@
 require 'socket'
 
 module Connections
-  class NimkiClient < Messaging::Connections::GenericClient
+  class CaptureClient < Messaging::Connections::GenericClient
 
     def initialize
       hostname = Socket.gethostname
@@ -11,7 +11,7 @@ module Connections
       machineRoutingKey = "#{Messaging.config.video_capture.routing_keys.rasbari.server}"
 
       super(exchangeName, responseRoutingKey, machineRoutingKey)
-      Messaging.logger.info("Start NimkiClient for hostname: #{hostname}")
+      Messaging.logger.info("Start CaptureClient for hostname: #{hostname}")
     end
 
     def getClipDetails(captureId, ffmpegName)

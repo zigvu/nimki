@@ -32,11 +32,11 @@ module States
 
     def captureClient
       # captureClient is initialized during initial ping
-      @_captureClient ||= Connections::NimkiClient.new
+      @_captureClient ||= Connections::CaptureClient.new
     end
     def storageClient
       # storageClient is initialized once capture details have been set
-      @_storageClient ||= true #Connections::NimkiClient.new
+      @_storageClient ||= true #Connections::CaptureClient.new
     end
 
     # reset in orderly fashion
