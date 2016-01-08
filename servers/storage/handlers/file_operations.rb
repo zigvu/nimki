@@ -26,7 +26,9 @@ module Handlers
           @message.clientFilePath
         )
       when Messaging::States::Storage::FileOperationTypes.delete
-        success, traceback = @storageState.fileTransfer.put(@message.serverFilePath)
+        success, traceback = @storageState.fileTransfer.delete(@message.serverFilePath)
+      when Messaging::States::Storage::FileOperationTypes.closeConnection
+        success, traceback = @storageState.fileTransfer.closeConnection(@message.hostname)
       end
 
       if success

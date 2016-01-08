@@ -31,8 +31,8 @@ module ShellCommands
       rescue
         Messaging.logger.warn("Process (#{@pid}) already killed")
       end
+      sleep @processWaitTimeAfterEnd if isRunning?
       @pid = nil
-      sleep @processWaitTimeAfterEnd
     end
 
   end

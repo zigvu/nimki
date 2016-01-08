@@ -12,10 +12,6 @@ module States
       @hostname = message.hostname
     end
 
-    def isLocal?
-      @hostname && @hostname == "local"
-    end
-
     def reset
       @hostname = nil
     end

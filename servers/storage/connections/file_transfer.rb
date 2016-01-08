@@ -25,6 +25,10 @@ module Connections
       end
     end
 
+    def closeConnection(hostname)
+      @cache.stop(hostname)
+    end
+
     private
       def messageWrapper(hostname, serverFilePath)
         success = true

@@ -23,7 +23,6 @@ raise "Missing argument: type '-h' for help." if !options.remote_ip
 Messaging.logger.info("Start StorageClient")
 
 @storageClientTest = Messaging::Connections::Clients::StorageClient.new(@remoteIp)
-@storageClientTest.setHostname('local')
 
 puts "Test: isRemoteAlive?"
 puts @storageClientTest.isRemoteAlive?

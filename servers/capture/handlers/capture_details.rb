@@ -7,15 +7,19 @@ module Handlers
     end
 
     def handle
-      @captureState.captureDetails.fromMessage(@message)
-      # TODO: connect with storage server and ping
-
-      # set thread manager variables
-      tm = @captureState.threadManager
-      tm.setClients(@captureState.captureClient, @captureState.storageClient)
-      tm.setCaptureDetails(@captureState.captureDetails)
-
       returnHeader = Messaging::Messages::Header.dataSuccess
+
+      @captureState.captureDetails.fromMessage(@message)
+      # ensure that can reach storage server
+      if @captureState.storageClient.isRemoteAlive?
+        # set thread manager variables
+        tm = @captureState.threadManager
+        tm.setClients(@captureState.captureClient, @captureState.storageClient)
+        tm.setCaptureDetails(@captureState.captureDetails)
+      else
+        returnHeader = Messaging::Messages::Header.dataFailure
+      end
+
       returnMessage = @message
       return returnHeader, returnMessage
     end

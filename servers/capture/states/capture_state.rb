@@ -36,7 +36,9 @@ module States
     end
     def storageClient
       # storageClient is initialized once capture details have been set
-      @_storageClient ||= true #Connections::CaptureClient.new
+      @_storageClient ||= Messaging::Connections::Clients::StorageClient.new(
+        captureDetails.storageHostname
+      )
     end
 
     # reset in orderly fashion

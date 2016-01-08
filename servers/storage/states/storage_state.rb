@@ -3,6 +3,14 @@ module States
     attr_accessor :_clientDetails, :_sftpConnectionsCache, :_fileTransfer
 
     def initialize
+      @fakeSftp = false
+    end
+
+    def setFakeSftp
+      @fakeSftp = true
+    end
+    def fakeSftp?
+      @fakeSftp
     end
 
     def clientDetails
@@ -11,7 +19,7 @@ module States
 
     def sftpConnectionsCache
       if !@_sftpConnectionsCache
-        if clientDetails.isLocal?
+        if fakeSftp?
           Messaging.logger.info("Running fake sftp for local mode")
           @_sftpConnectionsCache = Connections::FakeSftpConnectionsCache.new
         else
