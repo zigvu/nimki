@@ -25,10 +25,10 @@ module Handlers
       end
 
       if success
-        returnHeader = Messaging::Messages::Header.dataSuccess
+        returnHeader = Messaging::Messages::Header.statusSuccess
         returnMessage.trace = "State transition successful"
       else
-        returnHeader = Messaging::Messages::Header.dataFailure
+        returnHeader = Messaging::Messages::Header.statusFailure
         returnMessage.trace = "State transition failed"
       end
 
