@@ -7,22 +7,32 @@ module Handlers
     end
 
     def handle
-      returnHeader = Messaging::Messages::Header.dataSuccess
+      returnHeader = Messaging::Messages::Header.dataFailure
       returnMessage = @message
-      returnMessage.trace = "Capture details set successfully"
 
       @captureState.captureDetails.fromMessage(@message)
-      # ensure that client can reach storage server
-      if @captureState.storageClient.isRemoteAlive?
-        # set thread manager variables
-        tm = @captureState.threadManager
-        tm.setClients(@captureState.captureClient, @captureState.storageClient)
-        tm.setCaptureDetails(@captureState.captureDetails)
+
+      # ensure that rasbari server is alive
+      status, trace = @captureState.captureClient.isRemoteAlive?
+      if status
+        # ensure that client can reach storage server
+        status, trace = @captureState.storageClient.isRemoteAlive?
+        if status
+          # set thread manager variables
+          tm = @captureState.threadManager
+          tm.setClients(@captureState.captureClient, @captureState.storageClient)
+          tm.setCaptureDetails(@captureState.captureDetails)
+
+          returnHeader = Messaging::Messages::Header.dataSuccess
+          trace = "Capture details set successfully"
+        else
+          trace = "Cannot ping storage server"
+        end
       else
-        returnHeader = Messaging::Messages::Header.dataFailure
-        returnMessage.trace = "Cannot ping storage server"
+        trace = "Cannot ping rasbari server"
       end
 
+      returnMessage.trace = trace
       return returnHeader, returnMessage
     end
 
