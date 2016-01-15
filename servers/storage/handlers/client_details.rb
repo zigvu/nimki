@@ -7,9 +7,11 @@ module Handlers
     end
 
     def handle
-      @storageState.clientDetails.fromMessage(@message)
       returnHeader = Messaging::Messages::Header.dataSuccess
       returnMessage = @message
+
+      @storageState.clientDetails.fromMessage(@message)
+
       return returnHeader, returnMessage
     end
 

@@ -8,9 +8,12 @@ module Handlers
 
     def handle
       returnHeader = Messaging::Messages::Header.statusSuccess
+      returnMessage = @message
+      returnMessage.trace = "VNC Server started"
+
       # start vnc server
       @captureState.shellManager.vncStart
-      returnMessage = @message
+
       return returnHeader, returnMessage
     end
 

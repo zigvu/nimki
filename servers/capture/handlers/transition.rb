@@ -7,6 +7,7 @@ module Handlers
     end
 
     def handle
+      returnMessage = @message
       success = false
 
       # transition state
@@ -25,12 +26,14 @@ module Handlers
 
       if success
         returnHeader = Messaging::Messages::Header.dataSuccess
+        returnMessage.trace = "State transition successful"
       else
         returnHeader = Messaging::Messages::Header.dataFailure
+        returnMessage.trace = "State transition failed"
       end
 
-      @message.state = @captureState.getState()
-      returnMessage = @message
+      returnMessage.state = @captureState.getState()
+
       return returnHeader, returnMessage
     end
 

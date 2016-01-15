@@ -19,8 +19,10 @@ module Connections
       message = Messaging::Messages::VideoCapture::ClipDetails.new(nil)
       message.captureId = captureId
       message.ffmpegName = ffmpegName
-      _, response = call(header, message)
-      response
+      responseHeader, responseMessage = call(header, message)
+
+      status = responseHeader.isDataSuccess?
+      return status, responseMessage
     end
 
   end

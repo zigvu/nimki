@@ -7,38 +7,35 @@ module Handlers
     end
 
     def handle
+      returnHeader = Messaging::Messages::Header.dataFailure
+      returnMessage = @message
+      returnMessage.trace = "Couldn't complete file operations: Unknown reason"
       success = false
-      traceback = "Couldn't complete file operations: Unknown reason"
 
       # file operations
       requestedOp = Messaging::States::Storage::FileOperationTypes.new(@message.type)
       case requestedOp
       when Messaging::States::Storage::FileOperationTypes.put
-        success, traceback = @storageState.fileTransfer.get(
+        success, trace = @storageState.fileTransfer.get(
           @message.hostname,
           @message.clientFilePath,
           @message.serverFilePath
         )
       when Messaging::States::Storage::FileOperationTypes.get
-        success, traceback = @storageState.fileTransfer.put(
+        success, trace = @storageState.fileTransfer.put(
           @message.hostname,
           @message.serverFilePath,
           @message.clientFilePath
         )
       when Messaging::States::Storage::FileOperationTypes.delete
-        success, traceback = @storageState.fileTransfer.delete(@message.serverFilePath)
+        success, trace = @storageState.fileTransfer.delete(@message.serverFilePath)
       when Messaging::States::Storage::FileOperationTypes.closeConnection
-        success, traceback = @storageState.fileTransfer.closeConnection(@message.hostname)
+        success, trace = @storageState.fileTransfer.closeConnection(@message.hostname)
       end
 
-      if success
-        returnHeader = Messaging::Messages::Header.dataSuccess
-      else
-        returnHeader = Messaging::Messages::Header.dataFailure
-      end
+      returnHeader = Messaging::Messages::Header.dataSuccess if success
+      returnMessage.trace = trace
 
-      @message.traceback = traceback
-      returnMessage = @message
       return returnHeader, returnMessage
     end
 

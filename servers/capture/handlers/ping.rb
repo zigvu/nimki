@@ -7,13 +7,18 @@ module Handlers
     end
 
     def handle
+      returnHeader = Messaging::Messages::Header.pingSuccess
+      returnMessage = @message
+
       # ensure that rasbari server is alive
-      if @captureState.captureClient.isRemoteAlive?
-        returnHeader = Messaging::Messages::Header.pingSuccess
-      else
+      status, trace = @captureState.captureClient.isRemoteAlive?
+      returnMessage.trace = trace
+
+      if !status
         returnHeader = Messaging::Messages::Header.pingFailure
+        returnMessage.trace = "Cannot ping rasbari server"
       end
-      returnMessage = Messaging::Messages::MessageFactory.getNoneMessage
+
       return returnHeader, returnMessage
     end
 

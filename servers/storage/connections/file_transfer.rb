@@ -8,19 +8,19 @@ module Connections
     end
 
     def get(fromHost, clientFilePath, serverFilePath)
-      messageWrapper(fromHost, serverFilePath) do
+      traceWrapper(fromHost, serverFilePath) do
         @cache.get(fromHost).download!(clientFilePath, serverFilePath)
       end
     end
 
     def put(toHost, serverFilePath, clientFilePath)
-      messageWrapper(toHost, serverFilePath) do
+      traceWrapper(toHost, serverFilePath) do
         @cache.get(toHost).upload!(serverFilePath, clientFilePath)
       end
     end
 
     def delete(serverFilePath)
-      messageWrapper(nil, serverFilePath) do
+      traceWrapper(nil, serverFilePath) do
         FileUtils.rm(serverFilePath)
       end
     end
@@ -30,18 +30,18 @@ module Connections
     end
 
     private
-      def messageWrapper(hostname, serverFilePath)
+      def traceWrapper(hostname, serverFilePath)
         success = true
-        message = "File operation successful: #{serverFilePath}"
+        trace = "File operation successful: #{serverFilePath}"
         begin
           yield
         rescue StandardError => e
           success = false
-          message = "#{e}"
+          trace = "Error: #{e.backtrace.first}"
           @cache.restart(hostname) if hostname
-          Messaging.logger.warn("FileTransfer: #{e}")
+          Messaging.logger.error(e)
         end
-        return success, message
+        return success, trace
       end
 
   end

@@ -33,7 +33,7 @@ module States
 
       # until the queue is empty, do not return
       while !@queueClipFileNames.empty?
-        Messaging.logger.debug("ThreadManager: Ffmpeg queue not empty - sleeping")
+        Messaging.logger.debug("Ffmpeg queue not empty - sleeping")
         sleep 10
       end
     end
@@ -41,7 +41,7 @@ module States
     private
 
       def threadRasbariQuery
-        Messaging.logger.debug("ThreadManager: Starting rasbari files thread")
+        Messaging.logger.debug("Starting rasbari files thread")
         Thread.new do
           while true
             # block if no file has been produced
@@ -51,32 +51,35 @@ module States
 
             thumbnailFileName = getThumbnailFileName(clipFileName)
             # send rasbariServer a request
-            message = @captureClient.getClipDetails(@captureId, clipFileName)
-            # parse save url from response
-            clipId = message.clipId
-            storageClipPath = message.storageClipPath
-            storageThumbnailPath = message.storageThumbnailPath
-            # send request to storage server to save files
-            storeSuccess = (
-              @storageClient.saveFile(clipFileName, storageClipPath) &&
-              @storageClient.saveFile(thumbnailFileName, storageThumbnailPath)
-            )
+            clipDetailsStatus, clipDetailsMessage = @captureClient.getClipDetails(@captureId, clipFileName)
+            if clipDetailsStatus
+              # parse save url from response
+              clipId = clipDetailsMessage.clipId
+              storageClipPath = clipDetailsMessage.storageClipPath
+              storageThumbnailPath = clipDetailsMessage.storageThumbnailPath
+              # send request to storage server to save files
+              storeClipSuccess, _ = @storageClient.saveFile(clipFileName, storageClipPath)
+              storeThumbnailSuccess, _ = @storageClient.saveFile(thumbnailFileName, storageThumbnailPath)
 
-            if storeSuccess
+              if storeClipSuccess && storeThumbnailSuccess
+                Messaging.logger.debug("Storage saved: Clip id: #{clipId}")
+              else
+                # TODO: send message to rasbari with reason
+                Messaging.logger.error("Storage error: Clip id: #{clipId}")
+              end # if storeSuccess
+
+              # delete both files regardless of whether they were saved
               FileUtils.rm_rf(clipFileName)
               FileUtils.rm_rf(thumbnailFileName)
-              Messaging.logger.debug("ThreadManager: Storage saved: Clip id: #{clipId}")
             else
-              Messaging.logger.error("ThreadManager: Storage error: Clip id: #{clipId}")
-            end
-
-            Messaging.logger.debug("ThreadManager: Storage saved: Clip id: #{clipId}")
+              Messaging.logger.error("Clip details error: Filename: #{clipFileName}")
+            end # if storeSuccess
           end # while
         end # Thread
       end
 
       def threadFfmpegFiles
-        Messaging.logger.debug("ThreadManager: Starting ffmpeg files thread")
+        Messaging.logger.debug("Starting ffmpeg files thread")
         Thread.new do
           while true
             # look at number of files - listed by last modified flag
@@ -102,7 +105,7 @@ module States
 
                 # put in queue
                 @queueClipFileNames << clipFileName
-                Messaging.logger.debug("ThreadManager: FFMpeg created: #{clipFileName}")
+                Messaging.logger.debug("FFMpeg created: #{clipFileName}")
               end
             end
             # sleep 5 seconds

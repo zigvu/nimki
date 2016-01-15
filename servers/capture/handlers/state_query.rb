@@ -8,8 +8,11 @@ module Handlers
 
     def handle
       returnHeader = Messaging::Messages::Header.statusSuccess
-      @message.state = @captureState.getState()
       returnMessage = @message
+      returnMessage.trace = "State query successful"
+
+      returnMessage.state = @captureState.getState()
+
       return returnHeader, returnMessage
     end
 

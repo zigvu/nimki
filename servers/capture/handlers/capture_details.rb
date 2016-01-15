@@ -8,9 +8,11 @@ module Handlers
 
     def handle
       returnHeader = Messaging::Messages::Header.dataSuccess
+      returnMessage = @message
+      returnMessage.trace = "Capture details set successfully"
 
       @captureState.captureDetails.fromMessage(@message)
-      # ensure that can reach storage server
+      # ensure that client can reach storage server
       if @captureState.storageClient.isRemoteAlive?
         # set thread manager variables
         tm = @captureState.threadManager
@@ -18,9 +20,9 @@ module Handlers
         tm.setCaptureDetails(@captureState.captureDetails)
       else
         returnHeader = Messaging::Messages::Header.dataFailure
+        returnMessage.trace = "Cannot ping storage server"
       end
 
-      returnMessage = @message
       return returnHeader, returnMessage
     end
 
