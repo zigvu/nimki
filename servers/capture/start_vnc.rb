@@ -26,10 +26,13 @@ if @remoteIp != 'local'
   # Start ssh connection
   sshConnectionCmd = "ssh -N -T -L 5900:localhost:5900 ubuntu@#{@remoteIp}"
   @sshConnectionPid = Process.spawn(sshConnectionCmd)
+  Messaging.logger.debug("Sleep 10 seconds to let SSH connection be established")
+  sleep(10)
   Process.detach @sshConnectionPid
 end
 
 # Start vnc client
+Messaging.logger.debug("Start VNC Viewer")
 vncClientCmd = "vncviewer -encodings 'copyrect tight hextile' localhost:5900"
 @vncClientPid = Process.spawn(vncClientCmd)
 
