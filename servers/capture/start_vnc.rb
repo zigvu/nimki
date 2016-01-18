@@ -23,6 +23,8 @@ Messaging.logger.info("Start CaptureClient")
 
 # if testing in local machine, no need to ssh
 if @remoteIp != 'local'
+  # PKILL any previous ssh connections
+  `kill $(ps aux | grep 'ssh -N -T -L 5900' | awk 'NR==1 {print $2}')`
   # Start ssh connection
   sshConnectionCmd = "ssh -N -T -L 5900:localhost:5900 ubuntu@#{@remoteIp}"
   @sshConnectionPid = Process.spawn(sshConnectionCmd)
