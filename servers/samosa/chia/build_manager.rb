@@ -4,12 +4,12 @@ module Chia
 
     def initialize(samosaState)
       @samosaState = samosaState
-      @fileManager = Chia::FileManager.new(
-        @samosaState.chiaDetails, @samosaState.samosaClient, @samosaState.storageClient
-      )
     end
 
-    def run
+    def run(thSamosaClient, thStorageClient)
+      @fileManager = Chia::FileManager.new(
+        @samosaState.chiaDetails, thSamosaClient, thStorageClient
+      )
       status = true
       status = downloadFiles if status
       status = extractFrames if status

@@ -35,5 +35,13 @@ module Connections
       return status, responseMessage
     end
 
+    def updateClipEval(clipEvalMessage)
+      header = Messaging::Messages::Header.dataRequest
+      responseHeader, responseMessage = call(header, clipEvalMessage)
+
+      status = responseHeader.isDataSuccess?
+      return status, responseMessage
+    end
+
   end
 end

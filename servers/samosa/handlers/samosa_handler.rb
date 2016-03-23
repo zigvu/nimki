@@ -20,7 +20,9 @@ module Handlers
         stateQuery = Handlers::StateQuery.new(header, message, @samosaState)
         returnHeader, returnMessage = stateQuery.handle if stateQuery.canHandle?
 
-        # TODO: write Khajuri handlers
+        # Khajuri handlers
+        khajuriDetails = Handlers::KhajuriDetails.new(header, message, @samosaState)
+        returnHeader, returnMessage = khajuriDetails.handle if khajuriDetails.canHandle?
 
         # Chia handlers
         chiaDetails = Handlers::ChiaDetails.new(header, message, @samosaState)

@@ -5,6 +5,7 @@ module States
     attr_accessor :operationType
     attr_accessor :_samosaClient, :_storageClient
     attr_accessor :_chiaBuildManager, :_chiaBuildManagerThread
+    attr_accessor :_khajuriEvalManager, :_khajuriEvalManagerThreads
 
     def initialize
       # track state of variable - use mutex to make it thread safe
@@ -51,9 +52,40 @@ module States
     def chiaBuildManager
       if not @_chiaBuildManager
         @_chiaBuildManager = Chia::BuildManager.new(self)
-        @_chiaBuildManagerThread = Thread.new { @_chiaBuildManager.run }
+        @_chiaBuildManagerThread = Thread.new {
+          thSamosaClient = Connections::SamosaClient.new
+          thStorageClient = Messaging::Connections::Clients::StorageClient.new(
+            chiaDetails.storageHostname
+          )
+          @_chiaBuildManager.run(thSamosaClient, thStorageClient)
+        }
       end
       @_chiaBuildManager
+    end
+    def khajuriEvalManager
+      if not @_khajuriEvalManager
+        @_khajuriEvalManager = Khajuri::EvalManager.new(self)
+        @_khajuriEvalManagerThreads = []
+
+        @_khajuriEvalManagerThreads << Thread.new { @_khajuriEvalManager.runKhajuriProcess }
+        # give khajuri process some time to start up
+        sleep(5)
+        @_khajuriEvalManagerThreads << Thread.new {
+          thSamosaClient = Connections::SamosaClient.new
+          thStorageClient = Messaging::Connections::Clients::StorageClient.new(
+            khajuriDetails.storageHostname
+          )
+          @_khajuriEvalManager.runDownloadData(thSamosaClient, thStorageClient)
+        }
+        @_khajuriEvalManagerThreads << Thread.new {
+          thSamosaClient = Connections::SamosaClient.new
+          thStorageClient = Messaging::Connections::Clients::StorageClient.new(
+            khajuriDetails.storageHostname
+          )
+          @_khajuriEvalManager.runUploadResults(thSamosaClient, thStorageClient)
+        }
+      end
+      @_khajuriEvalManager
     end
 
     # reset in orderly fashion
@@ -61,9 +93,16 @@ module States
       @_chiaBuildManagerThread.join if @_chiaBuildManager
       @_chiaBuildManager = nil
 
+      if @_khajuriEvalManager
+        @_khajuriEvalManager.reset
+        @_khajuriEvalManagerThreads.map {|thrd| thrd.join }
+        @_khajuriEvalManager = nil
+      end
+
       @_storageClient = nil
       @_samosaClient = nil
 
+      # both chia and khajuri have stopped state
       setState(Messaging::States::Samosa::ChiaStates.stopped)
     end
 
