@@ -3,8 +3,7 @@ require 'fileutils'
 
 module Khajuri
   class FileManager
-    # for debug
-    attr_reader :baseFolder, :clipFolder
+    attr_reader :baseFolder, :clipFolder, :resultsFolder
     attr_reader :testInputPath, :modelPath
 
     def initialize(khajuriDetails, samosaClient, storageClient)
@@ -13,17 +12,20 @@ module Khajuri
       @storageClient = storageClient
       @samosaPyRoot = "/home/ubuntu/samosa"
 
+      # paths
       @baseFolder = "#{@khajuriDetails.baseFolder}/#{@khajuriDetails.capEvalId}"
       @clipFolder = "#{@baseFolder}/clips"
       FileUtils.mkdir_p(@clipFolder)
+      @resultsFolder = "#{@baseFolder}/results"
+      FileUtils.mkdir_p(@resultsFolder)
+      @testInputPath = "#{@baseFolder}/#{File.basename(@khajuriDetails.testInputPath)}"
+      @modelPath = "#{@baseFolder}/#{File.basename(@khajuriDetails.modelPath)}"
     end
 
     def getKhajuriInputFiles
-      @testInputPath = "#{@baseFolder}/#{File.basename(@khajuriDetails.testInputPath)}"
       status, _ = @storageClient.getFile(@khajuriDetails.testInputPath, @testInputPath)
       return status if not status
 
-      @modelPath = "#{@baseFolder}/#{File.basename(@khajuriDetails.modelPath)}"
       status, _ = @storageClient.getFile(@khajuriDetails.modelPath, @modelPath)
       return status if not status
 
@@ -75,6 +77,7 @@ module Khajuri
     end
 
     def uploadResult(message)
+      message.localResultPath = "#{@resultsFolder}/#{message.clipId}.json"
       # TODO: use message.storageHostname
       status, _ = @storageClient.saveFile(message.localResultPath, message.storageResultPath)
       if status
@@ -88,6 +91,13 @@ module Khajuri
       # FileUtils.rm_rf(message.localClipPath)
       # FileUtils.rm_rf(message.localResultPath)
       return status, message
+    end
+
+    def runKhajuriProcess
+      evalClipsBin = "#{@samosaPyRoot}/khajuri/bin/evaluate_clips.py"
+      configFile = "#{@testInputPath}/zigvu_config_test.json"
+      clipFolder = '/etc' # where we don't expect mp4 files
+      system("#{evalClipsBin} --config_file #{configFile} --test_model #{@modelPath} --clip_folder #{clipFolder} --output_path #{@resultsFolder}")
     end
 
   end

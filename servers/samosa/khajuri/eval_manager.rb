@@ -48,7 +48,7 @@ module Khajuri
           end
         end
         # put poison pill
-        kpc.sendClipEvalDetails(Messaging::Messages::Samosa::ClipDetails.new(nil))
+        kpc.sendClipEvalDetails(Messaging::Messages::Samosa::ClipEvalDetails.new(nil))
       end
       Messaging.logger.debug("EvalManager: End thread - runDownloadData")
     end
@@ -79,6 +79,8 @@ module Khajuri
 
     def runKhajuriProcess
       Messaging.logger.debug("EvalManager: Start thread - runKhajuriProcess")
+      fileManager = Khajuri::FileManager.new(@samosaState.khajuriDetails, nil, nil)
+      fileManager.runKhajuriProcess
       Messaging.logger.debug("EvalManager: End thread - runKhajuriProcess")
     end
 
