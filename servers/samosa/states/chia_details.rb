@@ -2,7 +2,7 @@ require 'fileutils'
 
 module States
   class ChiaDetails
-    attr_accessor :baseFolder, :iterationId, :storageHostname
+    attr_accessor :baseFolder, :iterationId, :chiaModelId, :storageHostname
     attr_accessor :buildInputPath, :parentModelPath
 
     def initialize(baseFolder = nil)
@@ -12,6 +12,7 @@ module States
 
     def fromMessage(message)
       @iterationId = message.iterationId
+      @chiaModelId = message.chiaModelId
       @storageHostname = message.storageHostname
       @buildInputPath = message.storageBuildInputPath
       @parentModelPath = message.storageParentModelPath
