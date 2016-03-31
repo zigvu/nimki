@@ -61,6 +61,8 @@ module Khajuri
       handler = Handlers::PipelineResultsHandler.new(@resultsQueue)
       Connections::KhajuriPipelineServer.new(handler)
       @samosaState.setState(Messaging::States::Samosa::KhajuriStates.evaluating)
+      state, progress = @samosaState.getState
+      fileManager.updateState(state, progress)
 
       while true
         return if @needsReset
@@ -74,6 +76,8 @@ module Khajuri
         removeClipIdFromCurEval(clipEvalMessage.clipId)
       end
       @samosaState.setState(Messaging::States::Samosa::KhajuriStates.evaluated)
+      state, progress = @samosaState.getState
+      fileManager.updateState(state, progress)
       Messaging.logger.debug("EvalManager: End thread - runUploadResults")
     end
 

@@ -100,5 +100,9 @@ module Chia
 
       status
     end
+
+    def updateState(state, progress)
+      @samosaClient.updateChiaState(@chiaDetails.iterationId, state, progress)
+    end
   end
 end

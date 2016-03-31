@@ -43,5 +43,27 @@ module Connections
       return status, responseMessage
     end
 
+    def updateChiaState(iterationId, state, progress)
+      header = Messaging::Messages::Header.statusRequest
+      message = Messaging::Messages::Samosa::ChiaStateQuery.new(nil)
+      message.iterationId = iterationId
+      message.state = state
+      message.progress = progress
+      responseHeader, _ = call(header, message)
+
+      responseHeader.isStatusSuccess?
+    end
+
+    def updateKhajuriState(capEvalId, state, progress)
+      header = Messaging::Messages::Header.statusRequest
+      message = Messaging::Messages::Samosa::KhajuriStateQuery.new(nil)
+      message.capEvalId = capEvalId
+      message.state = state
+      message.progress = progress
+      responseHeader, _ = call(header, message)
+
+      responseHeader.isStatusSuccess?
+    end
+
   end
 end

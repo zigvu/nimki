@@ -12,15 +12,23 @@ module Chia
       )
       status = true
       status = downloadFiles if status
+      status = updateState if status
+
       status = extractFrames if status
+      status = updateState if status
+
       status = fineTuneCaffe if status
+      status = updateState if status
+
       status = saveBuiltModel if status
+      status = updateState if status
 
       if status
-        @samosaState.setState(Messaging::States::Samosa::ChiaStates.built, "100%")
+        @samosaState.setState(Messaging::States::Samosa::ChiaStates.uploaded)
       else
         @samosaState.setState(Messaging::States::Samosa::ChiaStates.failed)
       end
+      updateState
     end
 
     def downloadFiles
@@ -48,7 +56,13 @@ module Chia
 
     def saveBuiltModel
       Messaging.logger.debug("Save Caffe model")
+      @samosaState.setState(Messaging::States::Samosa::ChiaStates.built, "100%")
       @fileManager.saveBuiltModel
+    end
+
+    def updateState
+      state, progress = @samosaState.getState
+      @fileManager.updateState(state, progress)
     end
 
   end

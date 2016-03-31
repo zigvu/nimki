@@ -17,16 +17,19 @@ module Handlers
         pingHandler = Handlers::Ping.new(header, message, @samosaState)
         returnHeader, returnMessage = pingHandler.handle if pingHandler.canHandle?
 
-        stateQuery = Handlers::StateQuery.new(header, message, @samosaState)
-        returnHeader, returnMessage = stateQuery.handle if stateQuery.canHandle?
-
         # Khajuri handlers
         khajuriDetails = Handlers::KhajuriDetails.new(header, message, @samosaState)
         returnHeader, returnMessage = khajuriDetails.handle if khajuriDetails.canHandle?
 
+        kjStateQuery = Handlers::KhajuriStateQuery.new(header, message, @samosaState)
+        returnHeader, returnMessage = kjStateQuery.handle if kjStateQuery.canHandle?
+
         # Chia handlers
         chiaDetails = Handlers::ChiaDetails.new(header, message, @samosaState)
         returnHeader, returnMessage = chiaDetails.handle if chiaDetails.canHandle?
+
+        chStateQuery = Handlers::ChiaStateQuery.new(header, message, @samosaState)
+        returnHeader, returnMessage = chStateQuery.handle if chStateQuery.canHandle?
 
       rescue Exception => e
         returnHeader = Messaging::Messages::Header.statusFailure

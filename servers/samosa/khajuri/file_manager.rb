@@ -100,5 +100,8 @@ module Khajuri
       system("#{evalClipsBin} --config_file #{configFile} --test_model #{@modelPath} --clip_folder #{clipFolder} --output_path #{@resultsFolder}")
     end
 
+    def updateState(state, progress)
+      @samosaClient.updateKhajuriState(@khajuriDetails.capEvalId, state, progress)
+    end
   end
 end

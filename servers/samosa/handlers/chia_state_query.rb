@@ -1,5 +1,5 @@
 module Handlers
-  class StateQuery
+  class ChiaStateQuery
     def initialize(header, message, samosaState)
       @header = header
       @message = message
@@ -17,7 +17,7 @@ module Handlers
     end
 
     def canHandle?
-      Messaging::Messages::Samosa::StateQuery.new(nil).isSameType?(@message)
+      Messaging::Messages::Samosa::ChiaStateQuery.new(nil).isSameType?(@message)
     end
   end
 end
