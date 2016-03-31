@@ -2,7 +2,7 @@ require "thread"
 
 module States
   class SamosaState
-    attr_accessor :operationType
+    attr_accessor :operationType, :fakeGpu
     attr_accessor :_samosaClient, :_storageClient
     attr_accessor :_chiaBuildManager, :_chiaBuildManagerThread
     attr_accessor :_khajuriEvalManager, :_khajuriEvalManagerThreads

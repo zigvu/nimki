@@ -28,7 +28,7 @@ module Khajuri
     def runDownloadData(thSamosaClient, thStorageClient)
       Messaging.logger.debug("EvalManager: Start thread - runDownloadData")
       fileManager = Khajuri::FileManager.new(
-        @samosaState.khajuriDetails, thSamosaClient, thStorageClient
+        @samosaState.khajuriDetails, thSamosaClient, thStorageClient, @samosaState.fakeGpu
       )
       status = fileManager.getKhajuriInputFiles
       status = fileManager.untarBuildInput if status
@@ -56,7 +56,7 @@ module Khajuri
     def runUploadResults(thSamosaClient, thStorageClient)
       Messaging.logger.debug("EvalManager: Start thread - runUploadResults")
       fileManager = Khajuri::FileManager.new(
-        @samosaState.khajuriDetails, thSamosaClient, thStorageClient
+        @samosaState.khajuriDetails, thSamosaClient, thStorageClient, @samosaState.fakeGpu
       )
       handler = Handlers::PipelineResultsHandler.new(@resultsQueue)
       Connections::KhajuriPipelineServer.new(handler)
@@ -83,7 +83,9 @@ module Khajuri
 
     def runKhajuriProcess
       Messaging.logger.debug("EvalManager: Start thread - runKhajuriProcess")
-      fileManager = Khajuri::FileManager.new(@samosaState.khajuriDetails, nil, nil)
+      fileManager = Khajuri::FileManager.new(
+        @samosaState.khajuriDetails, nil, nil, @samosaState.fakeGpu
+      )
       fileManager.runKhajuriProcess
       Messaging.logger.debug("EvalManager: End thread - runKhajuriProcess")
     end

@@ -4,7 +4,7 @@ require 'fileutils'
 module States
   class KhajuriDetails
     attr_accessor :baseFolder, :storageHostname
-    attr_accessor :capEvalId, :testInputPath, :modelPath, :clipIds
+    attr_accessor :capEvalId, :chiaModelId, :testInputPath, :modelPath, :clipIds
 
     def initialize(baseFolder = nil)
       @baseFolder = baseFolder || '/tmp/khajuri'
@@ -13,10 +13,11 @@ module States
 
     def fromMessage(message)
       @capEvalId = message.capEvalId
+      @chiaModelId = message.chiaModelId
       @storageHostname = message.storageHostname
       @testInputPath = message.storageTestInputPath
       @modelPath = message.storageModelPath
-      @clipIds = JSON.parse(message.clipIds).map{ |cl| cl.to_i }
+      @clipIds = JSON.parse(message.clipIds).map{ |cl| cl.to_i }.sort
     end
 
     def reset

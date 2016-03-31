@@ -8,7 +8,7 @@ module Chia
 
     def run(thSamosaClient, thStorageClient)
       @fileManager = Chia::FileManager.new(
-        @samosaState.chiaDetails, thSamosaClient, thStorageClient
+        @samosaState.chiaDetails, thSamosaClient, thStorageClient, @samosaState.fakeGpu
       )
       status = true
       status = downloadFiles if status

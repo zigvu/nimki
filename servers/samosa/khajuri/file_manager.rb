@@ -6,10 +6,11 @@ module Khajuri
     attr_reader :baseFolder, :clipFolder, :resultsFolder
     attr_reader :testInputPath, :modelPath
 
-    def initialize(khajuriDetails, samosaClient, storageClient)
+    def initialize(khajuriDetails, samosaClient, storageClient, isFakeGPU = false)
       @khajuriDetails = khajuriDetails
       @samosaClient = samosaClient
       @storageClient = storageClient
+      @isFakeGPU = isFakeGPU
       @samosaPyRoot = "/home/ubuntu/samosa"
 
       # paths
@@ -41,11 +42,7 @@ module Khajuri
     end
 
     def getClipIds
-      clipIds = []
-      File.open("#{File.dirname(@testInputPath)}/clip_ids.json", "r") do |f|
-        clipIds = JSON.load(f)
-      end
-      clipIds.map{ |cl| cl.to_i }
+      @khajuriDetails.clipIds
     end
 
     def downloadClip(clipId)
@@ -61,7 +58,7 @@ module Khajuri
             localClipPath: localClipPath,
             state: Messaging::States::Samosa::ClipEvalStates.downloaded
           })
-          @samosaClient.updateClipEval(message)
+          status, message = @samosaClient.updateClipEval(message)
         end
       end
       if !status
@@ -71,13 +68,22 @@ module Khajuri
           state: Messaging::States::Samosa::ClipEvalStates.failed,
           trace: "Could not get clip details"
         })
-        @samosaClient.updateClipEval(message)
+        status, message = @samosaClient.updateClipEval(message)
       end
       return status, message
     end
 
     def uploadResult(message)
       message.localResultPath = "#{@resultsFolder}/#{message.clipId}.json"
+      if @isFakeGPU
+        File.open(message.localResultPath, "w") do |f|
+          f.write(JSON.pretty_generate({
+            meta: {clip_id: message.clipId, scale: 1.0, chia_model_id: @khajuriDetails.chiaModelId},
+            data: {}
+          }))
+        end
+      end
+
       # TODO: use message.storageHostname
       status, _ = @storageClient.saveFile(message.localResultPath, message.storageResultPath)
       if status
@@ -94,10 +100,16 @@ module Khajuri
     end
 
     def runKhajuriProcess
+      status = true
       evalClipsBin = "#{@samosaPyRoot}/khajuri/bin/evaluate_clips.py"
       configFile = "#{@testInputPath}/zigvu_config_test.json"
       clipFolder = '/etc' # where we don't expect mp4 files
-      system("#{evalClipsBin} --config_file #{configFile} --test_model #{@modelPath} --clip_folder #{clipFolder} --output_path #{@resultsFolder}")
+      cmd = "#{evalClipsBin} --config_file #{configFile} --test_model #{@modelPath} --clip_folder #{clipFolder} --output_path #{@resultsFolder}"
+      if @isFakeGPU
+      else
+        status = system(cmd)
+      end
+      status
     end
 
     def updateState(state, progress)

@@ -7,10 +7,11 @@ module Chia
     attr_reader :clipIdsMap, :clipFolder
     attr_reader :buildDataBaseFolder
 
-    def initialize(chiaDetails, samosaClient, storageClient)
+    def initialize(chiaDetails, samosaClient, storageClient, isFakeGPU = false)
       @chiaDetails = chiaDetails
       @samosaClient = samosaClient
       @storageClient = storageClient
+      @isFakeGPU = isFakeGPU
       @samosaPyRoot = "/home/ubuntu/samosa"
 
       # paths
@@ -23,6 +24,7 @@ module Chia
       @buildDataBaseFolder = "#{@baseFolder}/build_data" # will be made by untarBuildInput
       @logFolder = "#{@baseFolder}/logs"
       FileUtils.mkdir_p(@logFolder)
+      @snapshotBasePath = "#{@baseFolder}/build/#{@chiaDetails.chiaModelId}/model"
     end
 
     def getChiaBuildFiles
@@ -70,7 +72,10 @@ module Chia
         framesOutBaseFolder = "#{@buildDataBaseFolder}/#{clipId}"
         cmd = "#{frameExtractorBin} --video_path #{clipPath} --frame_numbers #{frameNumberFilePath} --output_path #{framesOutBaseFolder}"
         Messaging.logger.info("System: #{cmd}")
-        status = system(cmd)
+        if @isFakeGPU
+        else
+          status = system(cmd)
+        end
       end
       status
     end
@@ -81,14 +86,20 @@ module Chia
       configFile = "#{File.dirname(@buildInputPath)}/zigvu_config_train.json"
       cmd = "#{fineTunerBin} --config_file #{configFile} --parent_model #{@parentModelPath} --annotation_folder #{@buildDataBaseFolder} --frame_folder #{@buildDataBaseFolder} 2>&1 | tee #{@logFolder}/finetune.log"
       Messaging.logger.info("System: #{cmd}")
-      status = system(cmd)
+      if @isFakeGPU
+        FileUtils.mkdir_p(@snapshotBasePath)
+        File.open("#{@snapshotBasePath}/fake_model.caffe.100", "w") do |f|
+          f.write("Fake model in fake GPU mode\n")
+        end
+      else
+        status = system(cmd)
+      end
       status
     end
 
     def saveBuiltModel
       # last file that is saved is the final model
-      snapshotBasePath = "#{@baseFolder}/build/#{@chiaDetails.chiaModelId}/model"
-      modelBuildPath = Dir["#{snapshotBasePath}/*"].sort_by{ |f| File.mtime(f) }.last
+      modelBuildPath = Dir["#{@snapshotBasePath}/*"].sort_by{ |f| File.mtime(f) }.last
       Messaging.logger.info("Caffe model at #{modelBuildPath}")
 
       status, message = @samosaClient.getChiaDetails(@chiaDetails.iterationId, modelBuildPath)
