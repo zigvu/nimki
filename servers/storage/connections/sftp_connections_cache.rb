@@ -4,6 +4,8 @@ module Connections
   class SftpConnectionsCache
 
     class Sftp
+      # clientFilePath - remoteFilePath
+      # serverFilePath - localFilePath
       def initialize(hostname)
         @sftp = Net::SFTP.start(hostname, "ubuntu")
       end
@@ -11,11 +13,23 @@ module Connections
       def download!(clientFilePath, serverFilePath)
         # ensure that local path exists
         FileUtils.mkdir_p(File.dirname(serverFilePath))
+        # write file and clobber if necessary
         @sftp.download!(clientFilePath, serverFilePath)
         true
       end
 
       def upload!(serverFilePath, clientFilePath)
+        # if remote file already exists, skip uploading
+        fileExits = true
+        begin
+          @sftp.stat!(clientFilePath)
+        rescue Net::SFTP::StatusException => e
+          # ignore file doesn't exist code, else raise
+          raise if e.code != 2
+          fileExits = false
+        end
+        return true if fileExits
+
         # ensure that remote path exists
         splitPath = File.dirname(clientFilePath).split("/")
         splitPath.each_with_index do |sp, idx|
@@ -34,7 +48,7 @@ module Connections
         @sftp.upload!(serverFilePath, clientFilePath)
         true
       end
-    end
+    end # class Sftp
 
     def initialize
       # format:
@@ -44,7 +58,7 @@ module Connections
     end
 
     def get(hostname)
-      if !@cache[hostname] || (Time.now - @cache[hostname][:last_accessed] > @timeForReset)
+      if !@cache[hostname] || ((Time.now - @cache[hostname][:last_accessed]) > @timeForReset)
         start(hostname)
       end
       @cache[hostname][:connection]

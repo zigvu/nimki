@@ -2,8 +2,9 @@ require 'fileutils'
 
 module States
   class ChiaDetails
-    attr_accessor :baseFolder, :iterationId, :chiaModelId, :storageHostname
-    attr_accessor :buildInputPath, :parentModelPath
+    attr_accessor :baseFolder, :iterationId, :chiaModelId
+    attr_accessor :parentChiaModelId, :needsTempParent
+    attr_accessor :storageHostname, :buildInputPath, :parentModelPath
 
     def initialize(baseFolder = nil)
       @baseFolder = baseFolder || '/tmp/chia'
@@ -13,6 +14,8 @@ module States
     def fromMessage(message)
       @iterationId = message.iterationId
       @chiaModelId = message.chiaModelId
+      @parentChiaModelId = message.parentChiaModelId
+      @needsTempParent = message.needsTempParent == "true"
       @storageHostname = message.storageHostname
       @buildInputPath = message.storageBuildInputPath
       @parentModelPath = message.storageParentModelPath
