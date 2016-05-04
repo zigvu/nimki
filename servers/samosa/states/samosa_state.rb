@@ -67,9 +67,13 @@ module States
         @_khajuriEvalManager = Khajuri::EvalManager.new(self)
         @_khajuriEvalManagerThreads = []
 
-        @_khajuriEvalManagerThreads << Thread.new { @_khajuriEvalManager.runKhajuriProcess }
-        # give khajuri process some time to start up
-        sleep(5)
+        @_khajuriEvalManagerThreads << Thread.new {
+          thSamosaClient = Connections::SamosaClient.new
+          thStorageClient = Messaging::Connections::Clients::StorageClient.new(
+            khajuriDetails.storageHostname
+          )
+          @_khajuriEvalManager.runKhajuriProcess(thSamosaClient, thStorageClient)
+        }
         @_khajuriEvalManagerThreads << Thread.new {
           thSamosaClient = Connections::SamosaClient.new
           thStorageClient = Messaging::Connections::Clients::StorageClient.new(

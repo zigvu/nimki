@@ -11,6 +11,8 @@ module Khajuri
       @maxNumClipsToDownload = 10
       @resultsQueue = Queue.new
       @needsReset = false
+      @khajuriProcessStartedMutex = Mutex.new
+      @khajuriProcessStarted = false
     end
 
     def getCurEvalClipIdCount
@@ -25,35 +27,53 @@ module Khajuri
       @curEvalClipIdsMutex.synchronize { @curEvalClipIds.delete(clipId.to_i) }
     end
 
+    def isKhajuriProcessStarted?
+      procStarted = false
+      @khajuriProcessStartedMutex.synchronize { procStarted = @khajuriProcessStarted }
+      procStarted
+    end
+    def setKhajuriProcessStarted
+      @khajuriProcessStartedMutex.synchronize { @khajuriProcessStarted = true }
+    end
+
+
     def runDownloadData(thSamosaClient, thStorageClient)
+      # ensure khajuri process has started
+      while !isKhajuriProcessStarted?
+        sleep 2
+        return if @needsReset
+      end
+
       Messaging.logger.debug("EvalManager: Start thread - runDownloadData")
       fileManager = Khajuri::FileManager.new(
         @samosaState.khajuriDetails, thSamosaClient, thStorageClient, @samosaState.fakeGpu
       )
-      status = fileManager.getKhajuriInputFiles
-      status = fileManager.untarBuildInput if status
-      if status
-        kpc = Connections::KhajuriPipelineClient.new()
-        fileManager.getClipIds.each do |clipId|
-          return if @needsReset
-          status, clipEvalMessage = fileManager.downloadClip(clipId)
-          next if !status
-          status, _ = kpc.sendClipEvalDetails(clipEvalMessage)
-          next if !status
+      kpc = Connections::KhajuriPipelineClient.new()
+      fileManager.getClipIds.each do |clipId|
+        break if @needsReset
+        status, clipEvalMessage = fileManager.downloadClip(clipId)
+        next if !status
+        status, _ = kpc.sendClipEvalDetails(clipEvalMessage)
+        next if !status
 
-          Messaging.logger.debug("EvalManager: Added clip #{clipId}")
-          addClipIdToCurEval(clipId)
-          while getCurEvalClipIdCount >= @maxNumClipsToDownload
-            sleep 10
-          end
+        Messaging.logger.debug("EvalManager: Added clip #{clipId}")
+        addClipIdToCurEval(clipId)
+        while getCurEvalClipIdCount >= @maxNumClipsToDownload
+          sleep 10
         end
-        # put poison pill
-        kpc.sendClipEvalDetails(Messaging::Messages::Samosa::ClipEvalDetails.new(nil))
       end
+      # put poison pill
+      kpc.sendClipEvalDetails(Messaging::Messages::Samosa::ClipEvalDetails.new(nil))
       Messaging.logger.debug("EvalManager: End thread - runDownloadData")
     end
 
     def runUploadResults(thSamosaClient, thStorageClient)
+      # ensure khajuri process has started
+      while !isKhajuriProcessStarted?
+        sleep 2
+        return if @needsReset
+      end
+
       Messaging.logger.debug("EvalManager: Start thread - runUploadResults")
       fileManager = Khajuri::FileManager.new(
         @samosaState.khajuriDetails, thSamosaClient, thStorageClient, @samosaState.fakeGpu
@@ -81,11 +101,15 @@ module Khajuri
       Messaging.logger.debug("EvalManager: End thread - runUploadResults")
     end
 
-    def runKhajuriProcess
+    def runKhajuriProcess(thSamosaClient, thStorageClient)
       Messaging.logger.debug("EvalManager: Start thread - runKhajuriProcess")
       fileManager = Khajuri::FileManager.new(
-        @samosaState.khajuriDetails, nil, nil, @samosaState.fakeGpu
+        @samosaState.khajuriDetails, thSamosaClient, thStorageClient, @samosaState.fakeGpu
       )
+      status = fileManager.getKhajuriInputFiles
+      status = fileManager.untarBuildInput if status
+
+      setKhajuriProcessStarted
       fileManager.runKhajuriProcess
       Messaging.logger.debug("EvalManager: End thread - runKhajuriProcess")
     end
@@ -93,7 +117,7 @@ module Khajuri
     def reset
       @needsReset = true
       @resultsQueue.clear
-      @resultsQueue << {clipId: nil}
+      @resultsQueue << Messaging::States::Samosa::ClipEvalStates.new(nil)
       sleep(1)
       @resultsQueue.clear
     end

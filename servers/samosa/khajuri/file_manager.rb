@@ -102,11 +102,12 @@ module Khajuri
     def runKhajuriProcess
       status = true
       evalClipsBin = "#{@samosaPyRoot}/khajuri/bin/evaluate_clips.py"
-      configFile = "#{@testInputPath}/zigvu_config_test.json"
-      clipFolder = '/etc' # where we don't expect mp4 files
-      cmd = "#{evalClipsBin} --config_file #{configFile} --test_model #{@modelPath} --clip_folder #{clipFolder} --output_path #{@resultsFolder}"
-      if @isFakeGPU
-      else
+      configFile = "#{@baseFolder}/zigvu_config_test.json"
+      tempClipFolder = "#{@baseFolder}/tempClips" # where we don't expect mp4 files
+      FileUtils.mkdir_p(tempClipFolder)
+      cmd = "#{evalClipsBin} --config_file #{configFile} --test_model #{@modelPath} --clip_folder #{tempClipFolder} --output_path #{@resultsFolder}"
+      Messaging.logger.info("System: #{cmd}")
+      if !@isFakeGPU
         status = system(cmd)
       end
       status
